@@ -1,0 +1,5 @@
+Prediction,Reference,Freq
+ALL,ALL,20
+AML,ALL,0
+ALL,AML,2
+AML,AML,12
