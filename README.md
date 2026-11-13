@@ -162,3 +162,155 @@ The final model was trained on the original 38 training samples and evaluated on
 | Cohen's kappa | 0.7463 |
 
 The model correctly classified all 20 ALL samples and 10 of the 14 AML samples. It classified four AML samples as ALL and did not classify any ALL samples as AML. Therefore, the model had perfect specificity for AML in this test set, but its sensitivity was lower because some AML samples were missed.
+
+# 5. Results and figures
+
+All figures are saved in the `figures/` folder and are also embedded below.
+
+### Figure 1. Class balance
+
+![Class balance](figures/01_class_balance.png)
+
+The figure shows the distribution of ALL and AML samples in the training and test groups.
+
+### Figure 2. Raw expression intensities
+
+![Raw intensity boxplot](figures/02_raw_boxplot.png)
+
+The raw expression values show the intensity distribution before pre-processing.
+
+### Figure 3. Processed expression intensities
+
+![Processed intensity boxplot](figures/03_processed_boxplot.png)
+
+The log2-transformed values show the expression distribution after filtering and transformation.
+
+### Figure 4. Principal Component Analysis
+
+![PCA plot](figures/04_pca.png)
+
+PC1 explains 16.1% and PC2 explains 11.4% of the total variation. The two classes show a general pattern of separation, but some overlap remains.
+
+### Figure 5. Heatmap of the 50 most variable probes
+
+![Top 50 variable probes heatmap](figures/05_heatmap_top_var.png)
+
+The heatmap visualises expression patterns across samples for the 50 most variable probes.
+
+### Figure 6. Differential-expression volcano plot
+
+![Volcano plot](figures/06_volcano.png)
+
+The volcano plot displays log2 fold change against the negative log10 adjusted p-value. In total, 266 probes met the selected significance thresholds.
+
+### Figure 7. GO Biological Process enrichment
+
+![GO enrichment](figures/07_go_enrichment.png)
+
+The enriched terms mainly relate to immune response, B-cell receptor signalling and leukocyte activation.
+
+### Figure 8. Cross-validation accuracy
+
+![Cross-validation accuracy](figures/08_cv_accuracy.png)
+
+The highest mean accuracy was 96.1% using 25 selected genes.
+
+### Figure 9. Independent test confusion matrix
+
+![Hold-out confusion matrix](figures/09_confusion_matrix.png)
+
+The model correctly classified 30 of the 34 independent test samples, giving an accuracy of 88.24%.
+
+## 6. Discussion
+
+The analysis found clear gene-expression differences between ALL and AML. A total of 266 probes were significant under the selected FDR and fold-change thresholds. Several genes showed strong differences between the two groups. For example, CD33, a marker associated with myeloid cells, had higher expression in AML. TCF3 and DNTT showed higher expression in ALL in this comparison.
+
+The PCA plot showed a general separation between the two classes, although the first two components did not completely separate every sample. Hierarchical clustering also grouped most samples according to their known class: cluster 1 contained 43 ALL and 2 AML samples, while cluster 2 contained 4 ALL and 23 AML samples.
+
+The classification results were encouraging. Cross-validation achieved 96.1% mean accuracy with 25 genes. However, independent test accuracy was 88.24%. This difference shows why an independent test set is important: cross-validation performance does not guarantee the same performance on new samples.
+
+The test model was more successful at identifying AML samples when it predicted AML (100% specificity and 100% positive predictive value), but it detected only 71.43% of the actual AML samples. Four AML samples were incorrectly predicted as ALL. In a medical setting, missed cases are important, so sensitivity would need to be improved and validated carefully.
+
+### Limitations
+
+1. The dataset contains only 72 samples, so estimates of model performance may vary with a different sample.
+2. The data come from an older Affymetrix microarray platform.
+3. The analysis uses one dataset/cohort and does not include external validation on an independent modern cohort.
+4. Differences in tissue source and other technical or biological factors may affect expression patterns.
+5. The task is limited to distinguishing ALL from AML and does not classify subtypes such as B-ALL and T-ALL.
+6. The hold-out sensitivity for AML was 71.43%, which is not sufficient to support clinical use.
+
+## 7. Conclusion and future work
+
+This project used gene-expression data, statistical analysis and machine learning to distinguish acute lymphoblastic leukaemia from acute myeloid leukaemia. After pre-processing, 3,571 probes remained. Differential-expression analysis identified 266 significant probes, and GO enrichment highlighted immune-related biological processes.
+
+A linear SVM using 25 selected genes achieved 96.1% mean accuracy in repeated cross-validation and 88.24% accuracy on the independent test set. The findings show that gene-expression patterns can help distinguish ALL from AML. However, the independent test result, especially the 71.43% AML sensitivity, indicates that the model needs improvement and further validation before any clinical application.
+
+Future work could include:
+- testing the model on larger and more recent RNA-seq datasets;
+- performing external validation using an independent cohort;
+- investigating ALL subtypes and other leukaemia categories;
+- comparing SVM with LASSO, random forest and other classifiers;
+- improving AML sensitivity and assessing performance on more balanced datasets.
+
+## 8. How to run the project
+
+### Requirements
+
+- R (the supplied analysis was run with R 4.6.2 on Windows 11);
+- RStudio is recommended;
+- an internet connection for installing missing CRAN and Bioconductor packages.
+
+### Run the analysis
+
+1. Extract the project ZIP file.
+2. Open `REG_NO_REPO.Rproj` in RStudio, or set the working directory to the `REG_NO_REPO` folder.
+3. Run the following command in the R console:
+
+```r
+source("code/run_all.R")
+```
+
+The script installs missing packages when needed and renders `code/analysis.Rmd` to `code/analysis.html`. The analysis also creates or updates the figures in `figures/` and result tables in `results/`.
+
+### Main R packages
+
+`tidyverse`, `pheatmap`, `e1071`, `caret`, `Biobase`, `golubEsets`, `limma`, `AnnotationDbi`, `hu6800.db`, `clusterProfiler`, `org.Hs.eg.db`, and `enrichplot`.
+
+### Project structure
+
+```text
+REG_NO_REPO/
+├── code/
+│   ├── analysis.Rmd
+│   ├── analysis.html
+│   └── run_all.R
+├── data/
+│   └── README.md
+├── figures/
+│   ├── 01_class_balance.png
+│   ├── 02_raw_boxplot.png
+│   ├── 03_processed_boxplot.png
+│   ├── 04_pca.png
+│   ├── 05_heatmap_top_var.png
+│   ├── 06_volcano.png
+│   ├── 07_go_enrichment.png
+│   ├── 08_cv_accuracy.png
+│   └── 09_confusion_matrix.png
+├── results/
+│   ├── confusion_matrix.csv
+│   ├── differential_expression.csv
+│   └── go_enrichment.csv
+├── README.md
+└── REG_NO_REPO.Rproj
+```
+
+## 9. References
+
+1. Golub, T. R., et al. (1999). Molecular classification of cancer: class discovery and class prediction by gene expression monitoring. *Science*, 286, 531–537.
+2. Dudoit, S., Fridlyand, J., & Speed, T. P. (2002). Comparison of discrimination methods for the classification of tumors using gene expression data. *Journal of the American Statistical Association*, 97, 77–87.
+3. Ritchie, M. E., et al. (2015). limma powers differential expression analyses for RNA-sequencing and microarray studies. *Nucleic Acids Research*, 43, e47.
+4. Cortes, C., & Vapnik, V. (1995). Support-vector networks. *Machine Learning*, 20, 273–297.
+5. Wu, T., et al. (2021). clusterProfiler 4.0: A universal enrichment tool for interpreting omics data. *The Innovation*, 2, 100141.
+6. Bioconductor. `golubEsets`: expression sets for the Golub leukaemia data.
+7. R Core Team. R: A language and environment for statistical computing. R Foundation for Statistical Computing.
